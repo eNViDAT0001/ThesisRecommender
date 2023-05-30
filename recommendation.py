@@ -1,8 +1,8 @@
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
-def recommend_products(user_id):
-    df = pd.read_csv('./comment.csv')
+def RecommendProducts(user_id):
+    df = pd.read_csv('./Data/comment.csv')
     # Pivot the dataframe
     pivot_df = df.pivot(index='user_id', columns='product_id', values='rating')
     # Reset the column names

@@ -1,0 +1,3 @@
+[submodule "thesis_proto"]
+	path = thesis_proto
+	url = https://github.com/eNViDAT0001/thesis_proto.git

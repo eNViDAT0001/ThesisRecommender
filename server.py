@@ -1,7 +1,8 @@
 import pandas as pd
 import grpc
+import csv
 from concurrent import futures
-from sklearn.metrics.pairwise import cosine_similarity
+from recommendation import RecommendProducts
 import recommender_pb2_grpc as pb2_grpc
 import recommender_pb2 as pb2
 
@@ -10,16 +11,14 @@ df = pd.read_csv('Data/comment.csv')
 class RecommenderService(pb2_grpc.RecommenderBaseCommentServicer):
 
     def AddComment(self, request, context):
-        return pb2.NonQueryResponse({'message': 'create successful'})
-
-    def UpdateComment(self, request, context):
-        return pb2.NonQueryResponse({'message': 'update successful'})
-
-    def DeleteComment(self, request, context):
-        return pb2.NonQueryResponse({'message': 'delete successful'})
+        with open('./Data/comment.csv', 'a') as f:
+            writer = csv.writer(f)
+            writer.writerow([request.user_id, request.product_id, request.rating])
+        return pb2.NonQueryResponse(message="Dummy Message")
         
     def LisRecommendedProductIDsByUserID(self, request, context):
-        return pb2.RecommentRes({'product_id': [1, 2, 3, 4, 5]})
+        result = RecommendProducts(request.user_id)
+        return pb2.RecommendRes(product_id=result)
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
