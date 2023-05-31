@@ -1,10 +1,17 @@
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
+df = pd.read_csv('./Data/comment.csv')
 def RecommendProducts(user_id):
-    df = pd.read_csv('./Data/comment.csv')
-    # Pivot the dataframe
-    pivot_df = df.pivot(index='user_id', columns='product_id', values='rating')
+    selected_columns = ['user_id', 'product_id', 'rating']
+    new_df = df[selected_columns]
+    new_df = new_df.drop_duplicates(['user_id', 'product_id', 'rating'])
+    new_df['rating'] = new_df['rating'].astype(float)  # Convert rating column to float
+    # Reset user_id and product_id to sequential numbers starting from 1
+    new_df['user_id'] = new_df['user_id'].astype('category').cat.codes + 1
+    new_df['product_id'] = new_df['product_id'].astype('category').cat.codes + 1
+    new_df = new_df.sort_values('user_id')
+    pivot_df = new_df.pivot(index='user_id', columns='product_id', values='rating')
     # Reset the column names
     pivot_df.columns.name = None
     # Reset the index name
@@ -16,7 +23,7 @@ def RecommendProducts(user_id):
     # Calculate the user-product matrix by subtracting the product average from each rating
     matrix_avg = pivot_df.sub(product_avg, axis=1)
     # Calculate the cosine similarity matrix
-    similarity = cosine_similarity(matrix_avg.T)
+    similarity = cosine_similarity(matrix_avg)
     # Get the row of the similarity matrix corresponding to the user
     user_similarity = similarity[user_id-1]
     # Find the top n similar users
@@ -39,5 +46,5 @@ def RecommendProducts(user_id):
     # Return the top n predicted products
     recommended_products = sorted(
         product_predictions, key=product_predictions.get, reverse=True)
-
+    # return recommended_products
     return recommended_products
