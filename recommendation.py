@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 
 
-def RecommendProducts(user_id):
+def RecommendProducts(original_user_id):
     df = pd.read_csv('./Data/comment.csv')
     
     selected_columns = ['user_id', 'product_id', 'rating']
@@ -10,7 +10,6 @@ def RecommendProducts(user_id):
     new_df = new_df.drop_duplicates(['user_id', 'product_id', 'rating'])
     new_df['rating'] = new_df['rating'].astype(float)  # Convert rating column to float
     
-    clone_df = df
     # Reset user_id and product_id to sequential numbers starting from 1
     new_df['user_id'] = new_df['user_id'].astype('category').cat.codes + 1
     new_df['product_id'] = new_df['product_id'].astype('category').cat.codes + 1
@@ -29,7 +28,7 @@ def RecommendProducts(user_id):
     # Calculate the cosine similarity matrix
     similarity = cosine_similarity(matrix_avg)
     
-    user_id = find_hash_user_id(df,original_user_id)
+    user_id = __find_hash_user_id(df, original_user_id)
     # Get the row of the similarity matrix corresponding to the user
     user_similarity = similarity[user_id-1]
     # Find the top n similar users
@@ -55,11 +54,13 @@ def RecommendProducts(user_id):
     # return recommended_products
     result = []
     for value in recommended_products:
-        result.append(resolve_product_id(clone_df,value)) 
+        result.append(__resolve_product_id(df,value)) 
 
     return result
 
-def resolve_product_id(df,product_code):
+    
+    
+def __resolve_product_id(df,product_code):
     selected_columns = ['user_id', 'product_id', 'rating']
     new_df = df[selected_columns]
     new_df = new_df.drop_duplicates(['user_id', 'product_id', 'rating'])
@@ -71,7 +72,7 @@ def resolve_product_id(df,product_code):
     # Filter the DataFrame based on the input product_code
     resolved_product_id = df.loc[df['product_code'] == product_code, 'product_id_resolved'].values[0]
     return resolved_product_id
-def find_hash_user_id(df, resolved_user_id):
+def __find_hash_user_id(df, resolved_user_id):
     df['user_id'] = df['user_id'].astype('category')
     df['user_code'] = df['user_id'].cat.codes + 1
     categories = df['user_id'].cat.categories

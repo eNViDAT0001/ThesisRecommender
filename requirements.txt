@@ -1,0 +1,4 @@
+grpcio==1.54.2
+pandas==2.0.1
+protobuf==4.23.3
+scikit_learn==1.2.2
