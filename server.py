@@ -2,7 +2,7 @@ import pandas as pd
 import grpc
 import csv
 from concurrent import futures
-from recommendation import RecommendProducts
+from recommendation import recommend_products
 import recommender_pb2_grpc as pb2_grpc
 import recommender_pb2 as pb2
 
@@ -17,7 +17,7 @@ class RecommenderService(pb2_grpc.RecommenderBaseCommentServicer):
         return pb2.NonQueryResponse(message="Dummy Message")
         
     def LisRecommendedProductIDsByUserID(self, request, context):
-        result = RecommendProducts(request.user_id)
+        result = recommend_products(request.user_id)
         return pb2.RecommendRes(product_id=result)
 
 def serve():
